@@ -1,9 +1,7 @@
 package com.ecommerce.product.controller;
 
 import com.ecommerce.common.response.ApiResponse;
-import com.ecommerce.product.dto.ProductCreateRequest;
-import com.ecommerce.product.dto.ProductDto;
-import com.ecommerce.product.dto.ProductUpdateRequest;
+import com.ecommerce.product.dto.*;
 import com.ecommerce.product.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,11 +53,11 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get product by ID", description = "Retrieve product details by ID")
-    public ResponseEntity<ApiResponse<ProductDto>> getProductById(@PathVariable Long id) {
-        ProductDto product = productService.getProductById(id);
-        return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
+    @GetMapping("/{id}/")
+    @Operation(summary = "Get product detail", description = "Retrieve full product detail page data including images, colors, sizes, offers, specifications, reviews, rating distribution, and Q&A")
+    public ResponseEntity<ApiResponse<ProductDetailDto>> getProductDetail(@PathVariable Long id) {
+        ProductDetailDto detail = productService.getProductDetail(id);
+        return ResponseEntity.ok(ApiResponse.success("Product detail retrieved successfully", detail));
     }
 
     @GetMapping
@@ -105,4 +103,30 @@ public class ProductController {
         
         return ResponseEntity.ok(ApiResponse.success("Products found", products));
     }
+
+    @PostMapping("/filter")
+    @Operation(summary = "Filter products", description = "Filter products with multiple criteria (categories, brands, colors, price range, etc.)")
+    public ResponseEntity<ApiResponse<Page<ProductDto>>> filterProducts(
+            @Valid @RequestBody com.ecommerce.product.dto.ProductFilterRequest filterRequest) {
+        
+        Page<ProductDto> products = productService.filterProducts(filterRequest);
+        
+        return ResponseEntity.ok(ApiResponse.success("Products filtered successfully", products));
+    }
+
+    @GetMapping("/filter/options")
+    @Operation(summary = "Get filter options", description = "Retrieve available filter options (categories, brands, colors, price range, etc.)")
+    public ResponseEntity<ApiResponse<Object>> getFilterOptions() {
+        var filterOptions = new java.util.HashMap<String, Object>();
+        filterOptions.put("categories", com.ecommerce.product.config.ProductFilterConstants.CATEGORIES);
+        filterOptions.put("brands", com.ecommerce.product.config.ProductFilterConstants.BRANDS);
+        filterOptions.put("colors", com.ecommerce.product.config.ProductFilterConstants.COLORS);
+        filterOptions.put("sizes", com.ecommerce.product.config.ProductFilterConstants.SIZES);
+        filterOptions.put("priceMin", com.ecommerce.product.config.ProductFilterConstants.PRICE_MIN);
+        filterOptions.put("priceMax", com.ecommerce.product.config.ProductFilterConstants.PRICE_MAX);
+        
+        return ResponseEntity.ok(ApiResponse.success("Filter options retrieved successfully", filterOptions));
+    }
 }
+
+

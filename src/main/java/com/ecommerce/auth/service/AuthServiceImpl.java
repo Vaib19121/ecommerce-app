@@ -9,6 +9,8 @@ import com.ecommerce.common.exception.BusinessException;
 import com.ecommerce.user.model.Role;
 import com.ecommerce.user.model.User;
 import com.ecommerce.user.repository.UserRepository;
+import com.ecommerce.wishlist.model.Wishlist;
+import com.ecommerce.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final WishlistRepository wishlistRepository;
 
     @Override
     public JwtResponse register(RegisterRequest request) {
@@ -52,15 +55,20 @@ public class AuthServiceImpl implements AuthService {
         cart.setUser(user);
         user.setCart(cart);
 
+        // Create empty wishlist for user
+        Wishlist wishlist = new Wishlist();
+        wishlist.setUser(user);
+        user.setWishlist(wishlist);
+
         // Save user
         User savedUser = userRepository.save(user);
-        log.info("User registered successfully: {}", savedUser.getEmail());
+        log.info("User registered successfully with cart and wishlist: {}", savedUser.getEmail());
 
         // Generate tokens
         String accessToken = jwtTokenProvider.generateTokenFromEmail(savedUser.getEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail());
 
-        return new JwtResponse(accessToken, refreshToken, savedUser.getEmail(), savedUser.getRole());
+        return new JwtResponse(accessToken, refreshToken, savedUser.getEmail(), savedUser.getRole(),savedUser.getFirstName(), savedUser.getLastName());
     }
 
     @Override
@@ -87,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("User logged in successfully: {}", user.getEmail());
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
-        return new JwtResponse(jwt, refreshToken, user.getEmail(), user.getRole());
+        return new JwtResponse(jwt, refreshToken, user.getEmail(), user.getRole(),user.getFirstName(), user.getLastName());
     }
 
     @Override

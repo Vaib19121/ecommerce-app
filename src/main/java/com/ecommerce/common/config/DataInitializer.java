@@ -3,6 +3,7 @@ package com.ecommerce.common.config;
 import com.ecommerce.category.model.Category;
 import com.ecommerce.category.repository.CategoryRepository;
 import com.ecommerce.product.model.Product;
+import com.ecommerce.product.model.ProductImage;
 import com.ecommerce.product.repository.ProductRepository;
 import com.ecommerce.user.model.Role;
 import com.ecommerce.user.model.User;
@@ -103,21 +104,54 @@ public class DataInitializer {
                 categories.add(categoryRepository.findByName("Books").get());
             }
 
+            if (!categoryRepository.existsByName("Accessories")) {
+                Category accessories = new Category();
+                accessories.setName("Accessories");
+                accessories.setDescription("Fashion accessories, bags, watches, and more");
+                categories.add(categoryRepository.save(accessories));
+                log.info("Category created: Accessories");
+            } else {
+                categories.add(categoryRepository.findByName("Accessories").get());
+            }
+
+            if (!categoryRepository.existsByName("Beauty")) {
+                Category beauty = new Category();
+                beauty.setName("Beauty");
+                beauty.setDescription("Skincare, cosmetics, and beauty products");
+                categories.add(categoryRepository.save(beauty));
+                log.info("Category created: Beauty");
+            } else {
+                categories.add(categoryRepository.findByName("Beauty").get());
+            }
+
+            if (!categoryRepository.existsByName("Furniture")) {
+                Category furniture = new Category();
+                furniture.setName("Furniture");
+                furniture.setDescription("Home and office furniture");
+                categories.add(categoryRepository.save(furniture));
+                log.info("Category created: Furniture");
+            } else {
+                categories.add(categoryRepository.findByName("Furniture").get());
+            }
+
             // Create sample products
             if (productRepository.count() == 0) {
-                Category electronics = categories.get(0);
-                Category clothing = categories.get(1);
-                Category books = categories.get(2);
+                Category electronics = categories.stream().filter(c -> c.getName().equals("Electronics")).findFirst().orElse(null);
+                Category clothing = categories.stream().filter(c -> c.getName().equals("Clothing")).findFirst().orElse(null);
+                Category books = categories.stream().filter(c -> c.getName().equals("Books")).findFirst().orElse(null);
+                Category accessories = categories.stream().filter(c -> c.getName().equals("Accessories")).findFirst().orElse(null);
+                Category beauty = categories.stream().filter(c -> c.getName().equals("Beauty")).findFirst().orElse(null);
+                Category furniture = categories.stream().filter(c -> c.getName().equals("Furniture")).findFirst().orElse(null);
 
-                // Electronics products
+                // Original Electronics products
                 Product laptop = new Product();
                 laptop.setName("Laptop Pro 15");
                 laptop.setDescription("High-performance laptop with 16GB RAM and 512GB SSD");
                 laptop.setPrice(new BigDecimal("1299.99"));
                 laptop.setStockQuantity(25);
-                laptop.setImageUrl("https://via.placeholder.com/300x300?text=Laptop");
                 laptop.setCategory(electronics);
                 laptop.setActive(true);
+                addImage(laptop, "https://via.placeholder.com/300x300?text=Laptop");
                 productRepository.save(laptop);
 
                 Product smartphone = new Product();
@@ -125,9 +159,9 @@ public class DataInitializer {
                 smartphone.setDescription("Latest smartphone with 5G connectivity and 128GB storage");
                 smartphone.setPrice(new BigDecimal("899.99"));
                 smartphone.setStockQuantity(50);
-                smartphone.setImageUrl("https://via.placeholder.com/300x300?text=Smartphone");
                 smartphone.setCategory(electronics);
                 smartphone.setActive(true);
+                addImage(smartphone, "https://via.placeholder.com/300x300?text=Smartphone");
                 productRepository.save(smartphone);
 
                 Product headphones = new Product();
@@ -135,20 +169,20 @@ public class DataInitializer {
                 headphones.setDescription("Noise-cancelling wireless headphones with 30-hour battery");
                 headphones.setPrice(new BigDecimal("249.99"));
                 headphones.setStockQuantity(100);
-                headphones.setImageUrl("https://via.placeholder.com/300x300?text=Headphones");
                 headphones.setCategory(electronics);
                 headphones.setActive(true);
+                addImage(headphones, "https://via.placeholder.com/300x300?text=Headphones");
                 productRepository.save(headphones);
 
-                // Clothing products
+                // Original Clothing products
                 Product tshirt = new Product();
                 tshirt.setName("Classic Cotton T-Shirt");
                 tshirt.setDescription("100% cotton comfortable t-shirt in various colors");
                 tshirt.setPrice(new BigDecimal("29.99"));
                 tshirt.setStockQuantity(200);
-                tshirt.setImageUrl("https://via.placeholder.com/300x300?text=T-Shirt");
                 tshirt.setCategory(clothing);
                 tshirt.setActive(true);
+                addImage(tshirt, "https://via.placeholder.com/300x300?text=T-Shirt");
                 productRepository.save(tshirt);
 
                 Product jeans = new Product();
@@ -156,20 +190,20 @@ public class DataInitializer {
                 jeans.setDescription("Modern slim-fit jeans made from premium denim");
                 jeans.setPrice(new BigDecimal("79.99"));
                 jeans.setStockQuantity(150);
-                jeans.setImageUrl("https://via.placeholder.com/300x300?text=Jeans");
                 jeans.setCategory(clothing);
                 jeans.setActive(true);
+                addImage(jeans, "https://via.placeholder.com/300x300?text=Jeans");
                 productRepository.save(jeans);
 
-                // Books products
+                // Original Books products
                 Product novel = new Product();
                 novel.setName("The Great Novel");
                 novel.setDescription("Bestselling fiction novel by renowned author");
                 novel.setPrice(new BigDecimal("19.99"));
                 novel.setStockQuantity(300);
-                novel.setImageUrl("https://via.placeholder.com/300x300?text=Novel");
                 novel.setCategory(books);
                 novel.setActive(true);
+                addImage(novel, "https://via.placeholder.com/300x300?text=Novel");
                 productRepository.save(novel);
 
                 Product cookbook = new Product();
@@ -177,15 +211,129 @@ public class DataInitializer {
                 cookbook.setDescription("Collection of 500+ delicious and easy recipes");
                 cookbook.setPrice(new BigDecimal("34.99"));
                 cookbook.setStockQuantity(80);
-                cookbook.setImageUrl("https://via.placeholder.com/300x300?text=Cookbook");
                 cookbook.setCategory(books);
                 cookbook.setActive(true);
+                addImage(cookbook, "https://via.placeholder.com/300x300?text=Cookbook");
                 productRepository.save(cookbook);
 
-                log.info("Sample products created: 7 products across 3 categories");
+                // New products from user request
+                // Premium Leather Sneakers
+                Product sneakers = new Product();
+                sneakers.setName("Premium Leather Sneakers");
+                sneakers.setBrand("UrbanStep");
+                sneakers.setDescription("Premium leather sneakers with superior comfort and style");
+                sneakers.setPrice(new BigDecimal("89.99"));
+                sneakers.setOriginalPrice(new BigDecimal("129.99"));
+                sneakers.setDiscountPercentage(31);
+                sneakers.setStockQuantity(120);
+                sneakers.setCategory(accessories);
+                sneakers.setActive(true);
+                addImage(sneakers, "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(sneakers);
+
+                // Minimalist Watch Pro
+                Product watch = new Product();
+                watch.setName("Minimalist Watch Pro");
+                watch.setBrand("TimeCraft");
+                watch.setDescription("Elegant minimalist design with precision timekeeping");
+                watch.setPrice(new BigDecimal("199.00"));
+                watch.setStockQuantity(85);
+                watch.setIsNew(true);
+                watch.setCategory(accessories);
+                watch.setActive(true);
+                addImage(watch, "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(watch);
+
+                // Wireless Noise-Cancelling Headphones
+                Product ncHeadphones = new Product();
+                ncHeadphones.setName("Wireless Noise-Cancelling Headphones");
+                ncHeadphones.setBrand("SoundWave");
+                ncHeadphones.setDescription("Premium noise-cancelling headphones with immersive sound quality");
+                ncHeadphones.setPrice(new BigDecimal("149.99"));
+                ncHeadphones.setOriginalPrice(new BigDecimal("199.99"));
+                ncHeadphones.setDiscountPercentage(25);
+                ncHeadphones.setStockQuantity(200);
+                ncHeadphones.setCategory(electronics);
+                ncHeadphones.setActive(true);
+                addImage(ncHeadphones, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(ncHeadphones);
+
+                // Linen Summer Dress
+                Product dress = new Product();
+                dress.setName("Linen Summer Dress");
+                dress.setBrand("Bloom & Co.");
+                dress.setDescription("Breathable linen summer dress perfect for warm weather");
+                dress.setPrice(new BigDecimal("59.99"));
+                dress.setStockQuantity(150);
+                dress.setCategory(clothing);
+                dress.setActive(true);
+                addImage(dress, "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(dress);
+
+                // Smart Backpack 30L
+                Product backpack = new Product();
+                backpack.setName("Smart Backpack 30L");
+                backpack.setBrand("TrailBlaze");
+                backpack.setDescription("Spacious 30L backpack with smart organizational features");
+                backpack.setPrice(new BigDecimal("79.99"));
+                backpack.setOriginalPrice(new BigDecimal("99.99"));
+                backpack.setDiscountPercentage(20);
+                backpack.setStockQuantity(95);
+                backpack.setCategory(accessories);
+                backpack.setActive(true);
+                addImage(backpack, "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(backpack);
+
+                // Bamboo Skincare Set
+                Product skincare = new Product();
+                skincare.setName("Bamboo Skincare Set");
+                skincare.setBrand("PureGlow");
+                skincare.setDescription("Complete natural skincare set with organic bamboo extracts");
+                skincare.setPrice(new BigDecimal("44.99"));
+                skincare.setStockQuantity(180);
+                skincare.setCategory(beauty);
+                skincare.setActive(true);
+                addImage(skincare, "https://images.unsplash.com/photo-1570194065650-d99fb4b38233?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(skincare);
+
+                // Ergonomic Office Chair
+                Product chair = new Product();
+                chair.setName("Ergonomic Office Chair");
+                chair.setBrand("ComfortZone");
+                chair.setDescription("Professional ergonomic office chair with lumbar support");
+                chair.setPrice(new BigDecimal("299.00"));
+                chair.setOriginalPrice(new BigDecimal("399.00"));
+                chair.setDiscountPercentage(25);
+                chair.setStockQuantity(40);
+                chair.setCategory(furniture);
+                chair.setActive(true);
+                addImage(chair, "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(chair);
+
+                // Stainless Steel Water Bottle
+                Product bottle = new Product();
+                bottle.setName("Stainless Steel Water Bottle");
+                bottle.setBrand("HydraMax");
+                bottle.setDescription("Durable stainless steel water bottle with vacuum insulation");
+                bottle.setPrice(new BigDecimal("34.99"));
+                bottle.setStockQuantity(350);
+                bottle.setCategory(accessories);
+                bottle.setActive(true);
+                addImage(bottle, "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop&auto=format");
+                productRepository.save(bottle);
+
+                log.info("Sample products created: 15 products across 6 categories");
             }
 
             log.info("Development data initialization completed!");
         };
+    }
+
+    private void addImage(Product product, String url) {
+        ProductImage image = new ProductImage();
+        image.setProduct(product);
+        image.setUrl(url);
+        image.setDisplayOrder(0);
+        product.getImages().add(image);
     }
 }
