@@ -62,10 +62,14 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        
+
+        String detailedMessage = errors.entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(java.util.stream.Collectors.joining("; "));
+
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
                 false,
-                "Validation failed",
+                detailedMessage,
                 errors,
                 LocalDateTime.now()
         );

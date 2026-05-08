@@ -6,8 +6,6 @@ import com.ecommerce.auth.dto.RegisterRequest;
 import com.ecommerce.auth.jwt.JwtTokenProvider;
 import com.ecommerce.cart.model.Cart;
 import com.ecommerce.common.exception.BusinessException;
-import com.ecommerce.user.dto.UserDto;
-import com.ecommerce.user.mapper.UserMapper;
 import com.ecommerce.user.model.Role;
 import com.ecommerce.user.model.User;
 import com.ecommerce.user.repository.UserRepository;
@@ -31,10 +29,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
-    private final UserMapper userMapper;
 
     @Override
-    public UserDto register(RegisterRequest request) {
+    public JwtResponse register(RegisterRequest request) {
         log.debug("Registering new user with email: {}", request.getEmail());
         
         // Check if user already exists
@@ -59,7 +56,11 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         log.info("User registered successfully: {}", savedUser.getEmail());
 
-        return userMapper.toDto(savedUser);
+        // Generate tokens
+        String accessToken = jwtTokenProvider.generateTokenFromEmail(savedUser.getEmail());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail());
+
+        return new JwtResponse(accessToken, refreshToken, savedUser.getEmail(), savedUser.getRole());
     }
 
     @Override
@@ -85,7 +86,8 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User logged in successfully: {}", user.getEmail());
 
-        return new JwtResponse(jwt, user.getEmail(), user.getRole());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
+        return new JwtResponse(jwt, refreshToken, user.getEmail(), user.getRole());
     }
 
     @Override
