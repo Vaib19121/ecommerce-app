@@ -26,6 +26,11 @@ spring:
         order_inserts: true
         order_updates: true
 
+# Stripe (set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET as environment variables or in .env)
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+
 # Logging
 logging:
   level:

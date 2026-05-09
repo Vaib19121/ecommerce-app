@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Stripe webhook — verified by signature, not JWT
+                        .requestMatchers("/api/payments/webhook").permitAll()
                         // Public product and category endpoints (read-only)
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/products/**").permitAll()
