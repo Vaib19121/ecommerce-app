@@ -123,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
                 paymentIntent.getId(),
                 order.id(),
                 totalPrice,
-                "inr"
+                "usd"
         );
     }
 
